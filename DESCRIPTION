@@ -4,13 +4,13 @@ Title: Image segmentation for geospatial data
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jo„o", "GonÁalves",
+      "Jo√£o", "Gon√ßalves",
       email = "joao.goncalves@cibio.up.pt",
       role = c("aut", "cre")
     )
   )
 Description: R native geospatial image segmentation with region-growing, 
-        Baatz-Sch‰pe or mean-shift algorithms.
+        Baatz-Sch√§pe or mean-shift algorithms.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

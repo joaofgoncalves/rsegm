@@ -2,7 +2,7 @@
 % Please edit documentation in R/fh_meanshift_segmenter.R
 \name{fh_meanshift_segmenter}
 \alias{fh_meanshift_segmenter}
-\title{FH Mean-Shift Hybrid Image Segmenter}
+\title{FH mean-shift hybrid geospatial image segmenter}
 \usage{
 fh_meanshift_segmenter(
   x,
