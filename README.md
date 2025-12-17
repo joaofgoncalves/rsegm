@@ -1,4 +1,11 @@
 
+> ⚠️ **Warning: development version**
+>
+> This R package is currently in active development.  
+> Features may be incomplete, change without notice, or behave unexpectedly.  
+> Use with caution, and do not rely on it for production workflows.
+>
+
 # Geospatial image segmentation in R
 
 This package provides scalable, high-performance tools for **geospatial
@@ -160,11 +167,11 @@ tile seams become if set too low.
 
 | Scenario | tile_size | buffer | k | Notes |
 |--------|-----------|--------|----|------|
-| Small raster (< 5k × 5k) | 2048–4096 | 64 | 0.4–0.7 | Larger tiles reduce seam handling |
+| Small raster (< 5k x 5k) | 2048–4096 | 64 | 0.4–0.7 | Larger tiles reduce seam handling |
 | Large raster, limited RAM | 1024–2048 | 64–96 | 0.6–1.0 | Balance memory use and seam robustness |
-| High-resolution imagery (≤ 0.5 m) | 2048 | 96–128 | 0.3–0.6 | Larger buffer needed for fine detail |
-| Coarse-resolution imagery (≥ 10 m) | 4096 | 32–64 | 0.8–1.5 | Fewer seams, larger objects |
-| Urban / textured scenes | 2048 | ≥ 96 | 0.4–0.7 | Buffer critical to avoid edge artifacts |
+| High-resolution imagery (<=0.5 m) | 2048 | 96–128 | 0.3–0.6 | Larger buffer needed for fine detail |
+| Coarse-resolution imagery (>= 10 m) | 4096 | 32–64 | 0.8–1.5 | Fewer seams, larger objects |
+| Urban / textured scenes | 2048 | >= 96 | 0.4–0.7 | Buffer critical to avoid edge artifacts |
 | Homogeneous landscapes | 4096 | 32–64 | 0.8–1.2 | Large tiles preferred |
 
 
@@ -174,7 +181,7 @@ tile seams become if set too low.
 - Increase **`buffer`** if segment boundaries align with tile edges
 - Adjust **`k` last** to control object size once seams are handled
 - Ensure:  
-  **buffer ≥ expected object radius**  
+  **buffer >= expected object radius**  
   **tile_size >> buffer**
 
 
