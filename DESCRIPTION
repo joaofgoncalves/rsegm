@@ -1,7 +1,7 @@
 Package: rsegm
 Type: Package
-Title: Image segmentation for geospatial data
-Version: 0.1.0
+Title: Geospatial Image Segmentation Using Classical OBIA Methods
+Version: 0.1.1
 Authors@R: c(
     person(
       "João", "Gonçalves",
@@ -9,15 +9,26 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: R native geospatial image segmentation with region-growing, 
-        Baatz-Schäpe or mean-shift algorithms.
+Description: Tools for classical object-based image analysis (OBIA) segmentation of
+        geospatial rasters (e.g., satellite and UAV imagery), including region growing,
+        Felzenszwalb-Huttenlocher (FH), and mean-shift based approaches, with optional
+        tiled processing and seam-aware merging for large images.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
 LinkingTo: 
-    Rcpp,
-    RcppArmadillo
+    Rcpp
 Imports: 
     Rcpp,
     terra
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Depends:
+    R (>= 4.3.0)
+URL: https://github.com/joaofgoncalves/rsegm
+BugReports: https://github.com/joaofgoncalves/rsegm/issues
+Config/testthat/edition: 3
