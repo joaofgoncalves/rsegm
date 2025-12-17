@@ -124,7 +124,7 @@ fh_segmenter <- function(x,
   # band-major layout expected by C++: all pixels of band 1, then band 2, ...
   img <- as.numeric(v)
 
-  lab <- segment_fh_cpp(
+  lab <- fh_segmenter_cpp(
     img, nr, nc, nb,
     k = k,
     min_size = as.integer(min_size),

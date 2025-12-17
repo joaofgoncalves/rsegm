@@ -12,7 +12,7 @@
 #'   \item Initial over-segmentation using the FH graph-based method
 #'         (fast, noise-robust, edge-preserving).
 #'   \item Region-level Mean-Shift clustering in reduced spectral space
-#'         (via PCA) to merge spectrally similar regions.
+#'         to merge spectrally similar regions.
 #'   \item Final region merging and minimum-size enforcement.
 #' }
 #'
@@ -43,9 +43,8 @@
 #' @param eight logical, default TRUE.
 #'   If TRUE, uses 8-neighborhood connectivity; otherwise 4-neighborhood.
 #'
-#' @param pca_dim integer, default 3.
-#'   Number of principal components retained for region-level Mean-Shift.
-#'   Typically 2-4 is sufficient even for high-dimensional imagery.
+#' @param ms_dim integer, default 0.
+#'   Number of dimensions/bands to use in mean shift step.
 #'
 #' @param ms_ranger numeric, default 0.15.
 #'   Spectral (range) bandwidth for Mean-Shift clustering of regions.
@@ -102,15 +101,12 @@
 #'
 #' @export
 fh_meanshift_segmenter <- function(x,
-                                   # preprocessing
                                    scale_bands = TRUE,
                                    smooth = 3,
-                                   # FH
                                    fh_k = 0.5,
                                    fh_min_size = 20,
                                    eight = TRUE,
-                                   # MeanShift on regions
-                                   pca_dim = 3,
+                                   ms_dim = 0,
                                    ms_ranger = 0.15,
                                    ms_hs = 12,
                                    ms_max_iter = 10,
@@ -143,13 +139,15 @@ fh_meanshift_segmenter <- function(x,
   # IMPORTANT: band-major (all pixels of band1, then band2, ...)
   img <- as.numeric(v)
 
-  lab <- fh_meanshift_cpp(
+  lab <- fh_meanshift_segmenter_cpp(
     img_d = img,
-    nrow = nr, ncol = nc, nb = nb,
+    nrow  = nr,
+    ncol  = nc,
+    nb    = nb,
     fh_k = fh_k,
     fh_min_size = as.integer(fh_min_size),
     eight = eight,
-    pca_dim = as.integer(pca_dim),
+    ms_dim = as.integer(ms_dim),
     ms_ranger = ms_ranger,
     ms_hs = ms_hs,
     ms_max_iter = as.integer(ms_max_iter),
