@@ -1,0 +1,221 @@
+---
+title: "Tiled segmentation workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tiled segmentation workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+This vignette describes the **tiled segmentation framework** implemented in
+the `rsegm` package. The framework is designed for large remote-sensing rasters
+that cannot be segmented reliably or efficiently in memory as a single scene.
+
+The core idea is to:
+
+1. Split the image into overlapping tiles on disk  
+2. Segment each tile independently  
+3. Detect and reconcile inconsistencies along tile seams  
+4. Merge spectrally similar segments across seams  
+5. Produce a globally consistent segmentation with compact IDs  
+
+The workflow is orchestrated by
+[`segmenter_tile_engine()`](../reference/segmenter_tile_engine.html).
+
+---
+
+## Motivation
+
+Classical OBIA segmentation algorithms (region growing, FH, mean-shift,
+multiresolution) are sensitive to boundary conditions. When applied tile-wise,
+objects crossing tile borders are often split inconsistently.
+
+This framework addresses that problem by:
+
+- **using overlap (buffers)** during segmentation,
+- **restricting merge decisions to seam zones**, and
+- **merging only spectrally similar adjacent segments**.
+
+All steps are implemented in a **streaming-safe**, disk-backed manner using
+`terra`, making the approach suitable for very large rasters.
+
+---
+
+## Step 1: Deterministic tiling with overlap
+
+The input raster is split into tiles of fixed size (`tile_size x tile_size`)
+with an additional overlap (`buffer`) on all sides.
+
+Each tile is written to disk and accompanied by metadata describing:
+
+- the *inner* (non-overlapping) window, and
+- the *buffered* window actually written to disk.
+
+This metadata is later reused to identify seam zones and adjacency relations
+deterministically.
+
+Relevant function:
+
+- `make_tiles_disk()`
+
+---
+
+## Step 2: Segment each tile and ensure global ID uniqueness
+
+Each tile is segmented independently by a user-supplied segmentation function
+(e.g., FH, region growing, mean-shift).
+
+To avoid label collisions between tiles, the engine applies a **running global
+offset** to segment IDs:
+
+- only labels `> 0` are offset,
+- `NA` values are preserved,
+- offsets are accumulated tile by tile.
+
+As a result, every segment ID is globally unique *before* any seam merging is
+attempted.
+
+Relevant function:
+
+- `segment_tiles()`
+
+---
+
+## Step 3: Seam masks and adjacency detection
+
+Only segments touching across tile borders should be considered for merging.
+To identify these candidates, the framework:
+
+1. Builds a **seam mask** around the inner tile boundary
+2. Extracts segment adjacency pairs where at least one pixel lies in the seam
+
+Adjacency can be computed using 4- or 8-neighborhood connectivity (8 by default).
+
+Relevant functions:
+
+- `make_tile_seam_mask()`
+- `extract_seam_pairs()`
+
+---
+
+## Step 4: Compute per-segment means from tiles
+
+For each candidate segment ID involved in a seam adjacency, the framework
+computes mean feature vectors (typically spectral band means).
+
+Means are computed by **streaming over segmentation tiles** and reading the
+corresponding image values block-wise. This avoids:
+
+- loading the full image into memory, and
+- relying on virtual raster (VRT) reads.
+
+If necessary, image subsets are resampled to match the segmentation grid before
+streaming.
+
+Relevant function:
+
+- `segment_means_from_tiles()`
+
+---
+
+## Step 5: Merge adjacent segments by similarity
+
+Adjacent seam segments are merged when their mean feature vectors are
+sufficiently similar.
+
+Similarity is evaluated using Euclidean distance, and merges are applied using a
+**union-find (disjoint-set)** structure. This ensures transitive consistency:
+
+> If A merges with B, and B merges with C, then A, B, and C all belong to the same
+> final segment.
+
+The result is a **merge map** from original IDs to representative IDs.
+
+Relevant function:
+
+- `merge_by_adjacency()`
+
+---
+
+## Step 6: Apply merge map with streaming I/O
+
+The segmented tiles are first mosaicked into a real, file-backed raster to ensure
+stable I/O.
+
+The merge map is then applied block-wise:
+
+- read a block of segment IDs,
+- replace IDs according to the map,
+- write the block back to disk.
+
+This step is safe for very large rasters.
+
+Relevant function:
+
+- `apply_merge_map()`
+
+---
+
+## Step 7: Global relabeling
+
+After merging, segment IDs may be sparse or non-consecutive. For convenience and
+downstream compatibility, all non-`NA` segment IDs are relabeled to a compact
+`1..K` sequence in a deterministic way.
+
+Relevant function:
+
+- `relabel_segments_global()`
+
+---
+
+## End-to-end orchestration
+
+All steps above are coordinated by:
+
+- `segmenter_tile_engine()`
+
+This function implements the full pipeline with sensible defaults and provides
+early exits when no seam merging is required.
+
+---
+
+## Typical usage
+
+```r
+seg <- segmenter_tile_engine(
+  x = img,
+  segment_fun = fh_meanshift_segmenter,
+  seg_args = list(fh_k = 0.5, fh_min_size = 20),
+  tile_size = 2048,
+  buffer = 64,
+  seam_thr = 0.8,
+  out_file = "segmentation.tif"
+)
+```
+
+---
+
+## Notes and extensions
+
+- The merging criterion can be extended to other features
+  (e.g., texture, shape, multiscale descriptors).
+- Union-find merging can be replaced by graph-based clustering if needed.
+- Rcpp acceleration can be added to adjacency extraction and merge evaluation
+  without changing the high-level API.
+
+---
+
+## Summary
+
+The tiled segmentation framework in `rsegm` provides a robust and scalable way
+to apply classical OBIA segmentation methods to large rasters while minimizing
+tile seam artifacts and maintaining global consistency.
