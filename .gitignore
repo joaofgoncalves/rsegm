@@ -21,3 +21,5 @@
 # OS files
 .DS_Store
 Thumbs.db
+/doc/
+/Meta/
