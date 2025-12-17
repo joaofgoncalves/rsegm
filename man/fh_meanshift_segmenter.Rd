@@ -11,7 +11,7 @@ fh_meanshift_segmenter(
   fh_k = 0.5,
   fh_min_size = 20,
   eight = TRUE,
-  pca_dim = 3,
+  ms_dim = 0,
   ms_ranger = 0.15,
   ms_hs = 12,
   ms_max_iter = 10,
@@ -44,9 +44,8 @@ merged during the FH cleanup stage.}
 \item{eight}{logical, default TRUE.
 If TRUE, uses 8-neighborhood connectivity; otherwise 4-neighborhood.}
 
-\item{pca_dim}{integer, default 3.
-Number of principal components retained for region-level Mean-Shift.
-Typically 2-4 is sufficient even for high-dimensional imagery.}
+\item{ms_dim}{integer, default 0.
+Number of dimensions/bands to use in mean shift step.}
 
 \item{ms_ranger}{numeric, default 0.15.
 Spectral (range) bandwidth for Mean-Shift clustering of regions.
@@ -89,7 +88,7 @@ The algorithm proceeds in four main stages:
   \item Initial over-segmentation using the FH graph-based method
         (fast, noise-robust, edge-preserving).
   \item Region-level Mean-Shift clustering in reduced spectral space
-        (via PCA) to merge spectrally similar regions.
+        to merge spectrally similar regions.
   \item Final region merging and minimum-size enforcement.
 }
 
