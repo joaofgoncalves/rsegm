@@ -10,7 +10,7 @@ This package provides scalable, high-performance tools for **geospatial image se
 
 The core focus is on producing **spatially coherent, integer-labeled segment rasters** that integrate cleanly with downstream raster and vector analysis in R.
 
-![](man/figures/showcase.png)
+![Some image segmentation examples (from top to bottom, left to right): Cairo (egypt), Mumbai (India), Beijing (China), V. Castelo (Portugal). Images from Google Earth Pro](man/figures/showcase.png)
 
 ## Main features
 
@@ -69,7 +69,7 @@ plotRGB(rgb, r=1, g=2, b=3, stretch="lin")
 plot(seg_lines, add=TRUE, col="yellow", lwd=0.8)
 ```
 
-## Tiled processing [TBD]
+## Tiled processing
 
 For large scenes, segmentation can be executed in a **tiled workflow** that:
 
@@ -141,7 +141,7 @@ While `k` is independent of tiling, it strongly influences how visible tile seam
 ### Recommended settings
 
 | Scenario | tile_size | buffer | k | Notes |
-|----|----|----|----|----|
+|---------------|---------------|---------------|---------------|---------------|
 | Small raster (\< 5k x 5k) | 2048–4096 | 64 | 0.4–0.7 | Larger tiles reduce seam handling |
 | Large raster, limited RAM | 1024–2048 | 64–96 | 0.6–1.0 | Balance memory use and seam robustness |
 | High-resolution imagery (\<=0.5 m) | 2048 | 96–128 | 0.3–0.6 | Larger buffer needed for fine detail |
@@ -171,6 +171,35 @@ The result is a GeoTIFF with globally consistent segment IDs, suitable for visua
 -   **terra** for raster I/O and spatial operations
 -   **Rcpp** for performance-critical algorithms
 -   Base R (stats, utils)
+
+## Benchmark times
+
+Run times on Windows 11, Intel Core 7 (8thGen), 16Gb machine:
+
+![Benchmark times](man/figures/benchmark_size_vs_time.png)
+
+Empirical runtime analysis suggests T(n)=Θ(n) over the observed range, with small constant-factor differences between algorithms.
+
+Log–log regression reveals a strong power-law relationship between input size and processing time (R2≈0.995), with scaling exponents close to 1, indicating approximately linear empirical runtime.
+
+| Algorithm      | Median (s) |   MPix | Rows | Cols | Bands |
+|:---------------|-----------:|-------:|-----:|-----:|------:|
+| FH             |      0.014 |  0.002 |   50 |   50 |     3 |
+| FH + MeanShift |      0.020 |  0.002 |   50 |   50 |     3 |
+| FH             |      0.029 |  0.010 |  100 |  100 |     3 |
+| FH + MeanShift |      0.031 |  0.010 |  100 |  100 |     3 |
+| FH             |      0.152 |  0.062 |  250 |  250 |     3 |
+| FH + MeanShift |      0.178 |  0.062 |  250 |  250 |     3 |
+| FH             |      0.753 |  0.250 |  500 |  500 |     3 |
+| FH + MeanShift |      0.751 |  0.250 |  500 |  500 |     3 |
+| FH             |      3.076 |  1.000 | 1000 | 1000 |     3 |
+| FH + MeanShift |      3.451 |  1.000 | 1000 | 1000 |     3 |
+| FH             |     14.709 |  4.000 | 2000 | 2000 |     3 |
+| FH + MeanShift |     15.684 |  4.000 | 2000 | 2000 |     3 |
+| FH             |     50.408 | 12.250 | 3500 | 3500 |     3 |
+| FH + MeanShift |     53.991 | 12.250 | 3500 | 3500 |     3 |
+| FH             |    121.985 | 24.995 | 4999 | 5000 |     3 |
+| FH + MeanShift |    119.918 | 24.995 | 4999 | 5000 |     3 |
 
 ## License
 
