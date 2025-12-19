@@ -1,0 +1,22 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>http://joaogoncalves.cc/rsegm/404.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/articles/index.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/articles/tiled-segmentation-workflow.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/authors.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/index.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/apply_merge_map.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/fh_meanshift_segmenter.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/fh_meanshift_segmenter_tile.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/fh_segmenter.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/fh_segmenter_tile.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/index.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/make_tiles_disk.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/merge_by_adjacency.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/relabel_segments_global.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/sample_raster.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/sample_raster_path.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/segmenter_tile_engine.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/segment_means_from_tiles.html</loc></url>
+<url><loc>http://joaogoncalves.cc/rsegm/reference/segment_tiles.html</loc></url>
+</urlset>
+

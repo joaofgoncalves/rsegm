@@ -29,6 +29,6 @@ Suggests:
 VignetteBuilder: knitr
 Depends:
     R (>= 4.3.0)
-URL: https://github.com/joaofgoncalves/rsegm
+URL: https://github.com/joaofgoncalves/rsegm, http://joaogoncalves.cc/rsegm/
 BugReports: https://github.com/joaofgoncalves/rsegm/issues
 Config/testthat/edition: 3

@@ -6,11 +6,11 @@
 
 # Geospatial image segmentation in R
 
-This package provides scalable, high-performance tools for **geospatial image segmentation** built on top of **terra**, **Rcpp**, and modern block-wise / tiled processing strategies. It is designed for object-based image analysis (OBIA) workflows on large raster datasets, including satellite and aerial imagery.
+The **rsegm** package provides scalable, high-performance tools for **geospatial image segmentation** built on top of **terra**, **Rcpp**, and modern block-wise / tiled processing strategies. It is designed for object-based image analysis (OBIA) workflows on large raster datasets, including satellite and aerial imagery.
 
 The core focus is on producing **spatially coherent, integer-labeled segment rasters** that integrate cleanly with downstream raster and vector analysis in R.
 
-![Some image segmentation examples (from top to bottom, left to right): Cairo (egypt), Mumbai (India), Beijing (China), V. Castelo (Portugal). Images from Google Earth Pro](man/figures/showcase.png)
+![Some image segmentation examples (from top to bottom, left to right): Cairo (Egypt), Mumbai (India), Beijing (China), V. Castelo (Portugal). Images from Google Earth Pro](man/figures/showcase.png)
 
 ## Main features
 
