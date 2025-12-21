@@ -50,6 +50,12 @@
 #'   \code{smooth x smooth} to each band before segmentation. Use small odd values
 #'   (e.g., 3 or 5). Set to \code{0} to disable smoothing.
 #'
+#' @param output_file Optional character string. If provided, the resulting
+#'   segmentation raster is written to this file via
+#'   \code{\link[terra:writeRaster]{terra::writeRaster()}}.
+#'
+#' @param verbose Do progress messages? (default: TRUE)
+#'
 #' @return A single-layer \code{\link[terra]{SpatRaster}} with integer segment IDs
 #'   in the layer \code{"segment_id"}. Invalid pixels are \code{NA}.
 #'
@@ -89,12 +95,33 @@ fh_segmenter <- function(x,
                          min_size = 50,
                          eight = TRUE,
                          scale_bands = TRUE,
-                         smooth = 0) {
+                         smooth = 0,
+                         output_file=NULL,
+                         verbose = TRUE) {
 
-  stopifnot(inherits(x, "SpatRaster"))
+  # ------------------------------------------------------------------
+  # helper for conditional messages
+  # ------------------------------------------------------------------
+  vcat <- function(...) {
+    if (isTRUE(verbose)) cat(...)
+  }
 
-  # Optional smoothing (mean filter). This is safer than weighted-sum with NA omit.
+  if (!inherits(x, "SpatRaster")) {
+    stop("Input must be a SpatRaster object", call. = FALSE)
+  }
+
+  nr <- terra::nrow(x)
+  nc <- terra::ncol(x)
+  nb <- terra::nlyr(x)
+
+  vcat("\nPreparing image data...\n")
+  vcat(sprintf("  Dimensions: %d rows x %d cols x %d bands\n", nr, nc, nb))
+
+  # ------------------------------------------------------------------
+  # Optional smoothing (mean filter)
+  # ------------------------------------------------------------------
   if (smooth > 0) {
+    vcat(sprintf("  Smoothing: mean filter (%dx%d)\n", smooth, smooth))
     w <- matrix(1, smooth, smooth)
     x <- terra::focal(
       x,
@@ -105,10 +132,22 @@ fh_segmenter <- function(x,
     )
   }
 
-  v <- terra::values(x, mat = TRUE)   # ncell x nb
+  # ------------------------------------------------------------------
+  # Raster -> values matrix (ncell x nb)
+  # ------------------------------------------------------------------
+  v <- terra::values(x, mat = TRUE)
 
-  # NA-aware scaling per band
-  if (scale_bands) {
+  # ------------------------------------------------------------------
+  # NA handling + band scaling
+  # ------------------------------------------------------------------
+  na_rows <- apply(v, 1L, function(row) any(is.na(row)))
+  if (any(na_rows)) {
+    vcat(sprintf("  Warning: %d pixels contain NA values\n", sum(na_rows)))
+    vcat("  Note: NA pixels may yield NA segment ids in output\n")
+  }
+
+  if (isTRUE(scale_bands)) {
+    vcat("  Scaling bands: z-score per band (NA-aware)\n")
     for (j in seq_len(ncol(v))) {
       mu  <- mean(v[, j], na.rm = TRUE)
       sdv <- stats::sd(v[, j], na.rm = TRUE)
@@ -117,23 +156,57 @@ fh_segmenter <- function(x,
     }
   }
 
-  nr <- nrow(x)
-  nc <- ncol(x)
-  nb <- terra::nlyr(x)
-
-  # band-major layout expected by C++: all pixels of band 1, then band 2, ...
+  # ------------------------------------------------------------------
+  # C++ expects band-major layout: all pixels band1, then band2, ...
+  # ------------------------------------------------------------------
   img <- as.numeric(v)
 
-  lab <- fh_segmenter_cpp(
-    img, nr, nc, nb,
-    k = k,
-    min_size = as.integer(min_size),
-    eight = eight
-  )
+  run_cpp <- function() {
+    fh_segmenter_cpp(
+      img, nr, nc, nb,
+      k = k,
+      min_size = as.integer(min_size),
+      eight = eight
+    )
+  }
+
+  # ------------------------------------------------------------------
+  # Run segmentation (silence C++ output if verbose = FALSE)
+  # ------------------------------------------------------------------
+  if (isTRUE(verbose)) {
+    vcat("\nRunning Felzenszwalb-Huttenlocher segmentation...\n")
+    lab <- run_cpp()
+  } else {
+    utils::capture.output(lab <- run_cpp(), type="output")
+    #lab <- attr(lab, "value")
+  }
+
+  # ------------------------------------------------------------------
+  # Convert labels back to raster
+  # ------------------------------------------------------------------
+  vcat("\nCreating output raster...\n")
 
   out <- terra::rast(x, nlyr = 1)
   lab[lab == 0] <- NA_integer_
   terra::values(out) <- lab
   names(out) <- "segment_id"
+
+  if (isTRUE(verbose)) {
+    nseg <- length(unique(stats::na.omit(lab)))
+    vcat("\nSegmentation complete!\n")
+    vcat(sprintf("  Unique segments: %d\n", nseg))
+    vcat(sprintf("  Average segment size: %.1f pixels\n",
+                 (nr * nc) / max(1L, nseg)))
+  }
+
+  # ------------------------------------------------------------------
+  # optional write to disk
+  # ------------------------------------------------------------------
+  if (!is.null(output_file)) {
+    vcat("Saving to: ", output_file, "\n")
+    terra::writeRaster(lab, output_file, overwrite = TRUE)
+  }
+
   out
 }
+
