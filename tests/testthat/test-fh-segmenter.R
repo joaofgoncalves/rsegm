@@ -10,7 +10,8 @@ test_that("fh_segmenter() basic invariants (minimal terra ops)", {
     min_size = 50,
     eight = TRUE,
     scale_bands = TRUE,
-    smooth = 0
+    smooth = 0,
+    verbose = FALSE
   )
 
   # ---- basic contract ----
@@ -61,7 +62,8 @@ test_that("fh_segmenter() propagates NA in a small window (no as.matrix)", {
     min_size = 50,
     eight = TRUE,
     scale_bands = TRUE,
-    smooth = 0
+    smooth = 0,
+    verbose = FALSE
   )
 
   # Read only the NA window from the segmentation
