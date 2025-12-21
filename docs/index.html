@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">rsegm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><blockquote>
-<p>⚠️ <strong>Warning: development version</strong></p>
+<p>⚠️<strong>Warning: development version</strong></p>
 <p>This R package is currently in active development.<br>
 Features may be incomplete, change without notice, or behave unexpectedly.<br>
 Use with caution, and do not rely on it for production workflows.</p>
@@ -72,8 +72,12 @@ Use with caution, and do not rely on it for production workflows.</p>
 <li>
 <strong>Graph-based and hybrid segmentation algorithms</strong>
 <ul>
-<li>Fast Felzenszwalb–Huttenlocher (FH) graph-based segmentation</li>
+<li>Fast Felzenszwalb-Huttenlocher (FH) graph-based segmentation</li>
 <li>Hybrid FH + region-level Mean Shift segmentation for higher-quality objects</li>
+<li>Mean-shift</li>
+<li>Baatz-Schäpe multi-resolution</li>
+<li>Fast Baatz-Schäpe multi-resolution</li>
+<li>SEEDS</li>
 </ul>
 </li>
 <li>
@@ -107,6 +111,14 @@ Use with caution, and do not rely on it for production workflows.</p>
 A fast, noise-robust method often used to generate superpixels or initial regions, suitable for large multi-band rasters.</p></li>
 <li><p><strong>FH + mean shift hybrid segmentation</strong><br>
 A two-stage approach combining FH over-segmentation with region-level Mean Shift refinement to merge spectrally similar regions efficiently, producing object-like segments well suited for OBIA workflows.</p></li>
+<li><p><strong>Mean Shift segmentation</strong><br>
+A pixel-domain mean-shift filtering and clustering method that produces smooth, spectrally homogeneous segments but with higher computational cost, best suited for small to medium-sized images.</p></li>
+<li><p><strong>Baatz–Schäpe multiresolution segmentation</strong><br>
+A classical OBIA algorithm that iteratively merges adjacent regions based on spectral heterogeneity and shape criteria, producing high-quality multi-scale objects at the expense of higher runtime.</p></li>
+<li><p><strong>Fast Baatz–Schäpe multiresolution segmentation</strong><br>
+An optimized variant of the Baatz–Schäpe algorithm using efficient region bookkeeping and priority-queue merging to achieve substantially faster performance on small to medium rasters.</p></li>
+<li><p><strong>SEEDS superpixel segmentation</strong><br>
+A hierarchical, histogram-based superpixel method that starts from a regular grid and refines boundaries via local block moves, designed for speed, locality, and tile-friendly large-raster processing.</p></li>
 </ul>
 <p>All methods return a single-layer raster where each cell contains an integer segment identifier.</p>
 <p><strong>Example</strong></p>
@@ -114,7 +126,7 @@ A two-stage approach combining FH over-segmentation with region-level Mean Shift
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joaofgoncalves/rsegm" class="external-link">rsegm</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"PlanetSAT_10m_Finland_Helsinki_UTM35.tif"</span><span class="op">)</span> </span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="reference/sample_raster_path.html">sample_raster_path</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span></span>
@@ -163,7 +175,7 @@ A two-stage approach combining FH over-segmentation with region-level Mean Shift
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/joaofgoncalves/rsegm" class="external-link">rsegm</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"multispectral_image.tif"</span><span class="op">)</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"very_large_multispectral_image.tif"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fh_segmenter_tile.html">fh_segmenter_tile</a></span><span class="op">(</span></span>
 <span>  <span class="va">r</span>,</span>
@@ -237,44 +249,44 @@ Each tile is segmented independently and later merged.</p>
 <tbody>
 <tr>
 <td>Small raster (&lt; 5k x 5k)</td>
-<td>2048–4096</td>
+<td>2048-4096</td>
 <td>64</td>
-<td>0.4–0.7</td>
+<td>0.4-0.7</td>
 <td>Larger tiles reduce seam handling</td>
 </tr>
 <tr>
 <td>Large raster, limited RAM</td>
-<td>1024–2048</td>
-<td>64–96</td>
-<td>0.6–1.0</td>
+<td>1024-2048</td>
+<td>64-96</td>
+<td>0.6-1.0</td>
 <td>Balance memory use and seam robustness</td>
 </tr>
 <tr>
 <td>High-resolution imagery (&lt;=0.5 m)</td>
 <td>2048</td>
-<td>96–128</td>
-<td>0.3–0.6</td>
+<td>96-128</td>
+<td>0.3-0.6</td>
 <td>Larger buffer needed for fine detail</td>
 </tr>
 <tr>
 <td>Coarse-resolution imagery (&gt;= 10 m)</td>
 <td>4096</td>
-<td>32–64</td>
-<td>0.8–1.5</td>
+<td>32-64</td>
+<td>0.8-1.5</td>
 <td>Fewer seams, larger objects</td>
 </tr>
 <tr>
 <td>Urban / textured scenes</td>
 <td>2048</td>
 <td>&gt;= 96</td>
-<td>0.4–0.7</td>
+<td>0.4-0.7</td>
 <td>Buffer critical to avoid edge artifacts</td>
 </tr>
 <tr>
 <td>Homogeneous landscapes</td>
 <td>4096</td>
-<td>32–64</td>
-<td>0.8–1.2</td>
+<td>32-64</td>
+<td>0.8-1.2</td>
 <td>Large tiles preferred</td>
 </tr>
 </tbody>
@@ -320,145 +332,404 @@ Each tile is segmented independently and later merged.</p>
 <div class="float">
 <img src="reference/figures/benchmark_size_vs_time.png" alt="Benchmark times"><div class="figcaption">Benchmark times</div>
 </div>
-<p>Empirical runtime analysis suggests T(n)=Θ(n) over the observed range, with small constant-factor differences between algorithms.</p>
-<p>Log–log regression reveals a strong power-law relationship between input size and processing time (R2≈0.995), with scaling exponents close to 1, indicating approximately linear empirical runtime.</p>
+<p>Empirical runtime analysis indicates near-linear scaling for most OBIA algorithms implemented in rsegm, with algorithm-specific deviations driven by internal neighborhood search, hierarchical merging, and iterative refinement steps rather than pixel traversal alone.</p>
+<p>Log–log regression of median runtime against image size (in MPix) reveals a strong power-law relationship across all methods (R² ~ 0.88-1.00). The estimated scaling exponents span sublinear (~0.5-0.7) to slightly superlinear (~1.07), indicating that while all methods are efficient over the tested range, they differ meaningfully in how per-pixel work grows with scene size.</p>
+<p>In brief this can be summarized as:</p>
+<ul>
+<li>
+<em>Best scalability</em>: SEEDS, FH, FH mean-shift</li>
+<li>
+<em>Best trade-off</em>: Baatz multi-res fast</li>
+<li>
+<em>Highest quality / highest cost</em>: Baatz multi-resolution, Mean-shift</li>
+</ul>
+<p>This empirical analysis supports algorithm selection based on scene size and workflow constraints, rather than assuming uniform “linear” behavior across OBIA methods.</p>
 <table class="table">
 <thead><tr>
 <th align="left">Algorithm</th>
 <th align="right">Median (s)</th>
 <th align="right">MPix</th>
-<th align="right">Rows</th>
-<th align="right">Cols</th>
-<th align="right">Bands</th>
+<th align="right">N_Rows</th>
+<th align="right">N_Cols</th>
 </tr></thead>
 <tbody>
 <tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">0.007</td>
+<td align="right">0.000</td>
+<td align="right">10</td>
+<td align="right">10</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">0.011</td>
+<td align="right">0.000</td>
+<td align="right">10</td>
+<td align="right">10</td>
+</tr>
+<tr>
 <td align="left">FH</td>
+<td align="right">0.009</td>
+<td align="right">0.000</td>
+<td align="right">10</td>
+<td align="right">10</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.008</td>
+<td align="right">0.000</td>
+<td align="right">10</td>
+<td align="right">10</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
 <td align="right">0.014</td>
+<td align="right">0.000</td>
+<td align="right">10</td>
+<td align="right">10</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.008</td>
+<td align="right">0.000</td>
+<td align="right">10</td>
+<td align="right">10</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">0.014</td>
+<td align="right">0.001</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">0.057</td>
+<td align="right">0.001</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="left">FH</td>
+<td align="right">0.010</td>
+<td align="right">0.001</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.011</td>
+<td align="right">0.001</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">0.144</td>
+<td align="right">0.001</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.008</td>
+<td align="right">0.001</td>
+<td align="right">25</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">0.042</td>
 <td align="right">0.002</td>
 <td align="right">50</td>
 <td align="right">50</td>
-<td align="right">3</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">0.020</td>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">0.291</td>
 <td align="right">0.002</td>
 <td align="right">50</td>
 <td align="right">50</td>
-<td align="right">3</td>
 </tr>
 <tr>
 <td align="left">FH</td>
-<td align="right">0.029</td>
+<td align="right">0.017</td>
+<td align="right">0.002</td>
+<td align="right">50</td>
+<td align="right">50</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.018</td>
+<td align="right">0.002</td>
+<td align="right">50</td>
+<td align="right">50</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">0.749</td>
+<td align="right">0.002</td>
+<td align="right">50</td>
+<td align="right">50</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.012</td>
+<td align="right">0.002</td>
+<td align="right">50</td>
+<td align="right">50</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">0.163</td>
 <td align="right">0.010</td>
 <td align="right">100</td>
 <td align="right">100</td>
-<td align="right">3</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">0.031</td>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">1.313</td>
 <td align="right">0.010</td>
 <td align="right">100</td>
 <td align="right">100</td>
-<td align="right">3</td>
 </tr>
 <tr>
 <td align="left">FH</td>
-<td align="right">0.152</td>
+<td align="right">0.045</td>
+<td align="right">0.010</td>
+<td align="right">100</td>
+<td align="right">100</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.047</td>
+<td align="right">0.010</td>
+<td align="right">100</td>
+<td align="right">100</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">2.503</td>
+<td align="right">0.010</td>
+<td align="right">100</td>
+<td align="right">100</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.021</td>
+<td align="right">0.010</td>
+<td align="right">100</td>
+<td align="right">100</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">0.412</td>
+<td align="right">0.022</td>
+<td align="right">150</td>
+<td align="right">150</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">3.351</td>
+<td align="right">0.022</td>
+<td align="right">150</td>
+<td align="right">150</td>
+</tr>
+<tr>
+<td align="left">FH</td>
+<td align="right">0.096</td>
+<td align="right">0.022</td>
+<td align="right">150</td>
+<td align="right">150</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.096</td>
+<td align="right">0.022</td>
+<td align="right">150</td>
+<td align="right">150</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">6.346</td>
+<td align="right">0.022</td>
+<td align="right">150</td>
+<td align="right">150</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.037</td>
+<td align="right">0.022</td>
+<td align="right">150</td>
+<td align="right">150</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">1.334</td>
 <td align="right">0.062</td>
 <td align="right">250</td>
 <td align="right">250</td>
-<td align="right">3</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">0.178</td>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">9.855</td>
 <td align="right">0.062</td>
 <td align="right">250</td>
 <td align="right">250</td>
-<td align="right">3</td>
 </tr>
 <tr>
 <td align="left">FH</td>
-<td align="right">0.753</td>
+<td align="right">0.262</td>
+<td align="right">0.062</td>
+<td align="right">250</td>
+<td align="right">250</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.276</td>
+<td align="right">0.062</td>
+<td align="right">250</td>
+<td align="right">250</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">18.839</td>
+<td align="right">0.062</td>
+<td align="right">250</td>
+<td align="right">250</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.057</td>
+<td align="right">0.062</td>
+<td align="right">250</td>
+<td align="right">250</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">2.815</td>
+<td align="right">0.122</td>
+<td align="right">350</td>
+<td align="right">350</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">22.268</td>
+<td align="right">0.122</td>
+<td align="right">350</td>
+<td align="right">350</td>
+</tr>
+<tr>
+<td align="left">FH</td>
+<td align="right">0.509</td>
+<td align="right">0.122</td>
+<td align="right">350</td>
+<td align="right">350</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">0.542</td>
+<td align="right">0.122</td>
+<td align="right">350</td>
+<td align="right">350</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">37.167</td>
+<td align="right">0.122</td>
+<td align="right">350</td>
+<td align="right">350</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.112</td>
+<td align="right">0.122</td>
+<td align="right">350</td>
+<td align="right">350</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">6.131</td>
 <td align="right">0.250</td>
 <td align="right">500</td>
 <td align="right">500</td>
-<td align="right">3</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">0.751</td>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">40.599</td>
 <td align="right">0.250</td>
 <td align="right">500</td>
 <td align="right">500</td>
-<td align="right">3</td>
 </tr>
 <tr>
 <td align="left">FH</td>
-<td align="right">3.076</td>
+<td align="right">1.146</td>
+<td align="right">0.250</td>
+<td align="right">500</td>
+<td align="right">500</td>
+</tr>
+<tr>
+<td align="left">FH Mean-shift</td>
+<td align="right">1.227</td>
+<td align="right">0.250</td>
+<td align="right">500</td>
+<td align="right">500</td>
+</tr>
+<tr>
+<td align="left">Mean-shift</td>
+<td align="right">77.845</td>
+<td align="right">0.250</td>
+<td align="right">500</td>
+<td align="right">500</td>
+</tr>
+<tr>
+<td align="left">SEEDS superpixels</td>
+<td align="right">0.227</td>
+<td align="right">0.250</td>
+<td align="right">500</td>
+<td align="right">500</td>
+</tr>
+<tr>
+<td align="left">Baatz Multi-res Fast</td>
+<td align="right">26.934</td>
 <td align="right">1.000</td>
 <td align="right">1000</td>
 <td align="right">1000</td>
-<td align="right">3</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">3.451</td>
+<td align="left">Baatz Multi-resolution</td>
+<td align="right">176.483</td>
 <td align="right">1.000</td>
 <td align="right">1000</td>
 <td align="right">1000</td>
-<td align="right">3</td>
 </tr>
 <tr>
 <td align="left">FH</td>
-<td align="right">14.709</td>
-<td align="right">4.000</td>
-<td align="right">2000</td>
-<td align="right">2000</td>
-<td align="right">3</td>
+<td align="right">4.540</td>
+<td align="right">1.000</td>
+<td align="right">1000</td>
+<td align="right">1000</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">15.684</td>
-<td align="right">4.000</td>
-<td align="right">2000</td>
-<td align="right">2000</td>
-<td align="right">3</td>
+<td align="left">FH Mean-shift</td>
+<td align="right">4.827</td>
+<td align="right">1.000</td>
+<td align="right">1000</td>
+<td align="right">1000</td>
 </tr>
 <tr>
-<td align="left">FH</td>
-<td align="right">50.408</td>
-<td align="right">12.250</td>
-<td align="right">3500</td>
-<td align="right">3500</td>
-<td align="right">3</td>
+<td align="left">Mean-shift</td>
+<td align="right">331.703</td>
+<td align="right">1.000</td>
+<td align="right">1000</td>
+<td align="right">1000</td>
 </tr>
 <tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">53.991</td>
-<td align="right">12.250</td>
-<td align="right">3500</td>
-<td align="right">3500</td>
-<td align="right">3</td>
-</tr>
-<tr>
-<td align="left">FH</td>
-<td align="right">121.985</td>
-<td align="right">24.995</td>
-<td align="right">4999</td>
-<td align="right">5000</td>
-<td align="right">3</td>
-</tr>
-<tr>
-<td align="left">FH + MeanShift</td>
-<td align="right">119.918</td>
-<td align="right">24.995</td>
-<td align="right">4999</td>
-<td align="right">5000</td>
-<td align="right">3</td>
+<td align="left">SEEDS superpixels</td>
+<td align="right">1.040</td>
+<td align="right">1.000</td>
+<td align="right">1000</td>
+<td align="right">1000</td>
 </tr>
 </tbody>
 </table>

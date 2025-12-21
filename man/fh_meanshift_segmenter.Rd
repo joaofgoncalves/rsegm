@@ -17,7 +17,9 @@ fh_meanshift_segmenter(
   ms_max_iter = 10,
   ms_eps = 0.001,
   mode_merge = 0.6,
-  final_min_size = 80
+  final_min_size = 80,
+  output_file = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -69,6 +71,12 @@ Higher values result in more aggressive merging of similar regions.}
 \item{final_min_size}{integer, default 80.
 Minimum segment size (in pixels) enforced after Mean-Shift refinement.
 Remaining smaller segments are merged into spectrally closest neighbors.}
+
+\item{output_file}{Optional character string. If provided, the resulting
+segmentation raster is written to this file via
+\code{\link[terra:writeRaster]{terra::writeRaster()}}.}
+
+\item{verbose}{Do progress messages? (default: TRUE)}
 }
 \value{
 SpatRaster.
@@ -78,7 +86,7 @@ SpatRaster.
 Performs high-quality, scalable image segmentation by combining a fast
 graph-based region merging step (Felzenszwalb-Huttenlocher, FH) with a
 region-level Mean-Shift refinement. This hybrid approach achieves
-state-of-the-art segmentation quality while remaining computationally
+good segmentation quality while remaining computationally
 efficient for large, multi-band raster images.
 }
 \details{

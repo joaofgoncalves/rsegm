@@ -10,7 +10,9 @@ fh_segmenter(
   min_size = 50,
   eight = TRUE,
   scale_bands = TRUE,
-  smooth = 0
+  smooth = 0,
+  output_file = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -32,6 +34,12 @@ using its mean and standard deviation computed with \code{na.rm=TRUE}.}
 \item{smooth}{Integer scalar. If \code{> 0}, applies a mean (box) filter of size
 \code{smooth x smooth} to each band before segmentation. Use small odd values
 (e.g., 3 or 5). Set to \code{0} to disable smoothing.}
+
+\item{output_file}{Optional character string. If provided, the resulting
+segmentation raster is written to this file via
+\code{\link[terra:writeRaster]{terra::writeRaster()}}.}
+
+\item{verbose}{Do progress messages? (default: TRUE)}
 }
 \value{
 A single-layer \code{\link[terra]{SpatRaster}} with integer segment IDs

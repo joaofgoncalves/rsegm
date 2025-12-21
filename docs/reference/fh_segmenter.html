@@ -19,7 +19,7 @@ pass that enforces a minimum region size.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">rsegm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,9 @@ pass that enforces a minimum region size.</p>
 <span>  min_size <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  eight <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  scale_bands <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  smooth <span class="op">=</span> <span class="fl">0</span></span>
+<span>  smooth <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  output_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -103,6 +105,16 @@ using its mean and standard deviation computed with <code>na.rm=TRUE</code>.</p>
 <dd><p>Integer scalar. If <code>&gt; 0</code>, applies a mean (box) filter of size
 <code>smooth x smooth</code> to each band before segmentation. Use small odd values
 (e.g., 3 or 5). Set to <code>0</code> to disable smoothing.</p></dd>
+
+
+<dt id="arg-output-file">output_file<a class="anchor" aria-label="anchor" href="#arg-output-file"></a></dt>
+<dd><p>Optional character string. If provided, the resulting
+segmentation raster is written to this file via
+<code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">terra::writeRaster()</a></code>.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Do progress messages? (default: TRUE)</p></dd>
 
 </dl></div>
     <div class="section level2">

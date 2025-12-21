@@ -1,4 +1,4 @@
-> ⚠️ **Warning: development version**
+> ⚠️**Warning: development version**
 >
 > This R package is currently in active development.\
 > Features may be incomplete, change without notice, or behave unexpectedly.\
@@ -15,8 +15,12 @@ The core focus is on producing **spatially coherent, integer-labeled segment ras
 ## Main features
 
 -   **Graph-based and hybrid segmentation algorithms**
-    -   Fast Felzenszwalb–Huttenlocher (FH) graph-based segmentation
+    -   Fast Felzenszwalb-Huttenlocher (FH) graph-based segmentation
     -   Hybrid FH + region-level Mean Shift segmentation for higher-quality objects
+    -   Mean-shift
+    -   Baatz-Schäpe multi-resolution
+    -   Fast Baatz-Schäpe multi-resolution
+    -   SEEDS
 -   **Large-raster support**
     -   Robust tiled processing for rasters that do not fit comfortably in memory
     -   Seam-aware merging to avoid boundary artifacts
@@ -36,6 +40,18 @@ The package currently includes:
 -   **FH + mean shift hybrid segmentation**\
     A two-stage approach combining FH over-segmentation with region-level Mean Shift refinement to merge spectrally similar regions efficiently, producing object-like segments well suited for OBIA workflows.
 
+-   **Mean Shift segmentation**\
+    A pixel-domain mean-shift filtering and clustering method that produces smooth, spectrally homogeneous segments but with higher computational cost, best suited for small to medium-sized images.
+
+-   **Baatz–Schäpe multiresolution segmentation**\
+    A classical OBIA algorithm that iteratively merges adjacent regions based on spectral heterogeneity and shape criteria, producing high-quality multi-scale objects at the expense of higher runtime.
+
+-   **Fast Baatz–Schäpe multiresolution segmentation**\
+    An optimized variant of the Baatz–Schäpe algorithm using efficient region bookkeeping and priority-queue merging to achieve substantially faster performance on small to medium rasters.
+
+-   **SEEDS superpixel segmentation**\
+    A hierarchical, histogram-based superpixel method that starts from a regular grid and refines boundaries via local block moves, designed for speed, locality, and tile-friendly large-raster processing.
+
 All methods return a single-layer raster where each cell contains an integer segment identifier.
 
 **Example**
@@ -44,7 +60,7 @@ All methods return a single-layer raster where each cell contains an integer seg
 library(terra)
 library(rsegm)
 
-r <- rast("PlanetSAT_10m_Finland_Helsinki_UTM35.tif") 
+r <- rast(sample_raster_path()) 
 
 print(r)
 
@@ -88,7 +104,7 @@ This approach allows segmentation of very large rasters while maintaining correc
 library(terra)
 library(rsegm)
 
-r <- rast("multispectral_image.tif")
+r <- rast("very_large_multispectral_image.tif")
 
 seg <- fh_segmenter_tile(
   r,
@@ -142,12 +158,12 @@ While `k` is independent of tiling, it strongly influences how visible tile seam
 
 | Scenario | tile_size | buffer | k | Notes |
 |---------------|---------------|---------------|---------------|---------------|
-| Small raster (\< 5k x 5k) | 2048–4096 | 64 | 0.4–0.7 | Larger tiles reduce seam handling |
-| Large raster, limited RAM | 1024–2048 | 64–96 | 0.6–1.0 | Balance memory use and seam robustness |
-| High-resolution imagery (\<=0.5 m) | 2048 | 96–128 | 0.3–0.6 | Larger buffer needed for fine detail |
-| Coarse-resolution imagery (\>= 10 m) | 4096 | 32–64 | 0.8–1.5 | Fewer seams, larger objects |
-| Urban / textured scenes | 2048 | \>= 96 | 0.4–0.7 | Buffer critical to avoid edge artifacts |
-| Homogeneous landscapes | 4096 | 32–64 | 0.8–1.2 | Large tiles preferred |
+| Small raster (\< 5k x 5k) | 2048-4096 | 64 | 0.4-0.7 | Larger tiles reduce seam handling |
+| Large raster, limited RAM | 1024-2048 | 64-96 | 0.6-1.0 | Balance memory use and seam robustness |
+| High-resolution imagery (\<=0.5 m) | 2048 | 96-128 | 0.3-0.6 | Larger buffer needed for fine detail |
+| Coarse-resolution imagery (\>= 10 m) | 4096 | 32-64 | 0.8-1.5 | Fewer seams, larger objects |
+| Urban / textured scenes | 2048 | \>= 96 | 0.4-0.7 | Buffer critical to avoid edge artifacts |
+| Homogeneous landscapes | 4096 | 32-64 | 0.8-1.2 | Large tiles preferred |
 
 ### Practical guidelines
 
@@ -178,28 +194,74 @@ Run times on Windows 11, Intel Core 7 (8thGen), 16Gb machine:
 
 ![Benchmark times](man/figures/benchmark_size_vs_time.png)
 
-Empirical runtime analysis suggests T(n)=Θ(n) over the observed range, with small constant-factor differences between algorithms.
+Empirical runtime analysis indicates near-linear scaling for most OBIA algorithms implemented in rsegm, with algorithm-specific deviations driven by internal neighborhood search, hierarchical merging, and iterative refinement steps rather than pixel traversal alone.
 
-Log–log regression reveals a strong power-law relationship between input size and processing time (R2≈0.995), with scaling exponents close to 1, indicating approximately linear empirical runtime.
+Log–log regression of median runtime against image size (in MPix) reveals a strong power-law relationship across all methods (R² \~ 0.88-1.00). The estimated scaling exponents span sublinear (\~0.5-0.7) to slightly superlinear (\~1.07), indicating that while all methods are efficient over the tested range, they differ meaningfully in how per-pixel work grows with scene size.
 
-| Algorithm      | Median (s) |   MPix | Rows | Cols | Bands |
-|:---------------|-----------:|-------:|-----:|-----:|------:|
-| FH             |      0.014 |  0.002 |   50 |   50 |     3 |
-| FH + MeanShift |      0.020 |  0.002 |   50 |   50 |     3 |
-| FH             |      0.029 |  0.010 |  100 |  100 |     3 |
-| FH + MeanShift |      0.031 |  0.010 |  100 |  100 |     3 |
-| FH             |      0.152 |  0.062 |  250 |  250 |     3 |
-| FH + MeanShift |      0.178 |  0.062 |  250 |  250 |     3 |
-| FH             |      0.753 |  0.250 |  500 |  500 |     3 |
-| FH + MeanShift |      0.751 |  0.250 |  500 |  500 |     3 |
-| FH             |      3.076 |  1.000 | 1000 | 1000 |     3 |
-| FH + MeanShift |      3.451 |  1.000 | 1000 | 1000 |     3 |
-| FH             |     14.709 |  4.000 | 2000 | 2000 |     3 |
-| FH + MeanShift |     15.684 |  4.000 | 2000 | 2000 |     3 |
-| FH             |     50.408 | 12.250 | 3500 | 3500 |     3 |
-| FH + MeanShift |     53.991 | 12.250 | 3500 | 3500 |     3 |
-| FH             |    121.985 | 24.995 | 4999 | 5000 |     3 |
-| FH + MeanShift |    119.918 | 24.995 | 4999 | 5000 |     3 |
+In brief this can be summarized as:
+
+-   *Best scalability*: SEEDS, FH, FH mean-shift
+-   *Best trade-off*: Baatz multi-res fast
+-   *Highest quality / highest cost*: Baatz multi-resolution, Mean-shift
+
+This empirical analysis supports algorithm selection based on scene size and workflow constraints, rather than assuming uniform "linear" behavior across OBIA methods.
+
+| Algorithm              | Median (s) |  MPix | N_Rows | N_Cols |
+|:-----------------------|-----------:|------:|-------:|-------:|
+| Baatz Multi-res Fast   |      0.007 | 0.000 |     10 |     10 |
+| Baatz Multi-resolution |      0.011 | 0.000 |     10 |     10 |
+| FH                     |      0.009 | 0.000 |     10 |     10 |
+| FH Mean-shift          |      0.008 | 0.000 |     10 |     10 |
+| Mean-shift             |      0.014 | 0.000 |     10 |     10 |
+| SEEDS superpixels      |      0.008 | 0.000 |     10 |     10 |
+| Baatz Multi-res Fast   |      0.014 | 0.001 |     25 |     25 |
+| Baatz Multi-resolution |      0.057 | 0.001 |     25 |     25 |
+| FH                     |      0.010 | 0.001 |     25 |     25 |
+| FH Mean-shift          |      0.011 | 0.001 |     25 |     25 |
+| Mean-shift             |      0.144 | 0.001 |     25 |     25 |
+| SEEDS superpixels      |      0.008 | 0.001 |     25 |     25 |
+| Baatz Multi-res Fast   |      0.042 | 0.002 |     50 |     50 |
+| Baatz Multi-resolution |      0.291 | 0.002 |     50 |     50 |
+| FH                     |      0.017 | 0.002 |     50 |     50 |
+| FH Mean-shift          |      0.018 | 0.002 |     50 |     50 |
+| Mean-shift             |      0.749 | 0.002 |     50 |     50 |
+| SEEDS superpixels      |      0.012 | 0.002 |     50 |     50 |
+| Baatz Multi-res Fast   |      0.163 | 0.010 |    100 |    100 |
+| Baatz Multi-resolution |      1.313 | 0.010 |    100 |    100 |
+| FH                     |      0.045 | 0.010 |    100 |    100 |
+| FH Mean-shift          |      0.047 | 0.010 |    100 |    100 |
+| Mean-shift             |      2.503 | 0.010 |    100 |    100 |
+| SEEDS superpixels      |      0.021 | 0.010 |    100 |    100 |
+| Baatz Multi-res Fast   |      0.412 | 0.022 |    150 |    150 |
+| Baatz Multi-resolution |      3.351 | 0.022 |    150 |    150 |
+| FH                     |      0.096 | 0.022 |    150 |    150 |
+| FH Mean-shift          |      0.096 | 0.022 |    150 |    150 |
+| Mean-shift             |      6.346 | 0.022 |    150 |    150 |
+| SEEDS superpixels      |      0.037 | 0.022 |    150 |    150 |
+| Baatz Multi-res Fast   |      1.334 | 0.062 |    250 |    250 |
+| Baatz Multi-resolution |      9.855 | 0.062 |    250 |    250 |
+| FH                     |      0.262 | 0.062 |    250 |    250 |
+| FH Mean-shift          |      0.276 | 0.062 |    250 |    250 |
+| Mean-shift             |     18.839 | 0.062 |    250 |    250 |
+| SEEDS superpixels      |      0.057 | 0.062 |    250 |    250 |
+| Baatz Multi-res Fast   |      2.815 | 0.122 |    350 |    350 |
+| Baatz Multi-resolution |     22.268 | 0.122 |    350 |    350 |
+| FH                     |      0.509 | 0.122 |    350 |    350 |
+| FH Mean-shift          |      0.542 | 0.122 |    350 |    350 |
+| Mean-shift             |     37.167 | 0.122 |    350 |    350 |
+| SEEDS superpixels      |      0.112 | 0.122 |    350 |    350 |
+| Baatz Multi-res Fast   |      6.131 | 0.250 |    500 |    500 |
+| Baatz Multi-resolution |     40.599 | 0.250 |    500 |    500 |
+| FH                     |      1.146 | 0.250 |    500 |    500 |
+| FH Mean-shift          |      1.227 | 0.250 |    500 |    500 |
+| Mean-shift             |     77.845 | 0.250 |    500 |    500 |
+| SEEDS superpixels      |      0.227 | 0.250 |    500 |    500 |
+| Baatz Multi-res Fast   |     26.934 | 1.000 |   1000 |   1000 |
+| Baatz Multi-resolution |    176.483 | 1.000 |   1000 |   1000 |
+| FH                     |      4.540 | 1.000 |   1000 |   1000 |
+| FH Mean-shift          |      4.827 | 1.000 |   1000 |   1000 |
+| Mean-shift             |    331.703 | 1.000 |   1000 |   1000 |
+| SEEDS superpixels      |      1.040 | 1.000 |   1000 |   1000 |
 
 ## License
 

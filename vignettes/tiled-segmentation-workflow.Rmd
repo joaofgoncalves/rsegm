@@ -31,7 +31,6 @@ The core idea is to:
 The workflow is orchestrated by
 [`segmenter_tile_engine()`](../reference/segmenter_tile_engine.html).
 
----
 
 ## Motivation
 
@@ -48,7 +47,6 @@ This framework addresses that problem by:
 All steps are implemented in a **streaming-safe**, disk-backed manner using
 `terra`, making the approach suitable for very large rasters.
 
----
 
 ## Step 1: Deterministic tiling with overlap
 
@@ -67,7 +65,6 @@ Relevant function:
 
 - `make_tiles_disk()`
 
----
 
 ## Step 2: Segment each tile and ensure global ID uniqueness
 
@@ -88,7 +85,6 @@ Relevant function:
 
 - `segment_tiles()`
 
----
 
 ## Step 3: Seam masks and adjacency detection
 
@@ -105,7 +101,6 @@ Relevant functions:
 - `make_tile_seam_mask()`
 - `extract_seam_pairs()`
 
----
 
 ## Step 4: Compute per-segment means from tiles
 
@@ -125,7 +120,6 @@ Relevant function:
 
 - `segment_means_from_tiles()`
 
----
 
 ## Step 5: Merge adjacent segments by similarity
 
@@ -144,7 +138,6 @@ Relevant function:
 
 - `merge_by_adjacency()`
 
----
 
 ## Step 6: Apply merge map with streaming I/O
 
@@ -163,7 +156,6 @@ Relevant function:
 
 - `apply_merge_map()`
 
----
 
 ## Step 7: Global relabeling
 
@@ -175,7 +167,6 @@ Relevant function:
 
 - `relabel_segments_global()`
 
----
 
 ## End-to-end orchestration
 
@@ -211,8 +202,6 @@ seg <- segmenter_tile_engine(
 - Union-find merging can be replaced by graph-based clustering if needed.
 - Rcpp acceleration can be added to adjacency extraction and merge evaluation
   without changing the high-level API.
-
----
 
 ## Summary
 

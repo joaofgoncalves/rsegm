@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">rsegm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +84,6 @@ segmented reliably or efficiently in memory as a single scene.</p>
 <li>Produce a globally consistent segmentation with compact IDs</li>
 </ol>
 <p>The workflow is orchestrated by <a href="../reference/segmenter_tile_engine.html"><code>segmenter_tile_engine()</code></a>.</p>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
@@ -106,7 +105,6 @@ segments</strong>.</li>
 <p>All steps are implemented in a <strong>streaming-safe</strong>,
 disk-backed manner using <code>terra</code>, making the approach
 suitable for very large rasters.</p>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-1-deterministic-tiling-with-overlap">Step 1: Deterministic tiling with overlap<a class="anchor" aria-label="anchor" href="#step-1-deterministic-tiling-with-overlap"></a>
@@ -126,7 +124,6 @@ relations deterministically.</p>
 <ul>
 <li><code><a href="../reference/make_tiles_disk.html">make_tiles_disk()</a></code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-2-segment-each-tile-and-ensure-global-id-uniqueness">Step 2: Segment each tile and ensure global ID uniqueness<a class="anchor" aria-label="anchor" href="#step-2-segment-each-tile-and-ensure-global-id-uniqueness"></a>
@@ -147,7 +144,6 @@ seam merging is attempted.</p>
 <ul>
 <li><code><a href="../reference/segment_tiles.html">segment_tiles()</a></code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-3-seam-masks-and-adjacency-detection">Step 3: Seam masks and adjacency detection<a class="anchor" aria-label="anchor" href="#step-3-seam-masks-and-adjacency-detection"></a>
@@ -167,7 +163,6 @@ by default).</p>
 <li><code>make_tile_seam_mask()</code></li>
 <li><code>extract_seam_pairs()</code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-4-compute-per-segment-means-from-tiles">Step 4: Compute per-segment means from tiles<a class="anchor" aria-label="anchor" href="#step-4-compute-per-segment-means-from-tiles"></a>
@@ -188,7 +183,6 @@ grid before streaming.</p>
 <ul>
 <li><code><a href="../reference/segment_means_from_tiles.html">segment_means_from_tiles()</a></code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-5-merge-adjacent-segments-by-similarity">Step 5: Merge adjacent segments by similarity<a class="anchor" aria-label="anchor" href="#step-5-merge-adjacent-segments-by-similarity"></a>
@@ -208,7 +202,6 @@ representative IDs.</p>
 <ul>
 <li><code><a href="../reference/merge_by_adjacency.html">merge_by_adjacency()</a></code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-6-apply-merge-map-with-streaming-io">Step 6: Apply merge map with streaming I/O<a class="anchor" aria-label="anchor" href="#step-6-apply-merge-map-with-streaming-io"></a>
@@ -226,7 +219,6 @@ raster to ensure stable I/O.</p>
 <ul>
 <li><code><a href="../reference/apply_merge_map.html">apply_merge_map()</a></code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="step-7-global-relabeling">Step 7: Global relabeling<a class="anchor" aria-label="anchor" href="#step-7-global-relabeling"></a>
@@ -239,7 +231,6 @@ deterministic way.</p>
 <ul>
 <li><code><a href="../reference/relabel_segments_global.html">relabel_segments_global()</a></code></li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="end-to-end-orchestration">End-to-end orchestration<a class="anchor" aria-label="anchor" href="#end-to-end-orchestration"></a>
@@ -278,7 +269,6 @@ needed.</li>
 <li>Rcpp acceleration can be added to adjacency extraction and merge
 evaluation without changing the high-level API.</li>
 </ul>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
