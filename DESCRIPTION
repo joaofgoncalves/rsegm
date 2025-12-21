@@ -1,7 +1,7 @@
 Package: rsegm
 Type: Package
 Title: Geospatial Image Segmentation Using Classical OBIA Methods
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: c(
     person(
       "João", "Gonçalves",
@@ -18,7 +18,8 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
 LinkingTo: 
-    Rcpp
+    Rcpp,
+    RcppArmadillo
 Imports: 
     Rcpp,
     terra
